@@ -3,10 +3,8 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-   <div>
-    <Button color="danger">
-      Oprimir
-    </Button>
+   <div className="flex justify-center items-center min-h-svh">
+    <h1>Pagina de inicio</h1>
    </div>
   );
 }

@@ -1,6 +1,9 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
+import "react-toastify/dist/ReactToastify.css";
 import { Providers } from "@/providers";
+import NavBar from "@/components/NavBar";
+import SessionAuthProvider from "@/context/SessionAuthProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -11,11 +14,14 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <Providers>
-          {children}
-        </Providers>
+        <SessionAuthProvider>
+          <Providers>
+            <NavBar />
+            {children}
+          </Providers>
+        </SessionAuthProvider>
       </body>
     </html>
   );
