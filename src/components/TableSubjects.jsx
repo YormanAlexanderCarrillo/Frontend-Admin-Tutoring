@@ -39,7 +39,7 @@ export default function TableSubjects() {
     if (status === "authenticated") {
       getSubjects();
     }
-  }, [status]);
+  }, [status,isCreateOpen,isEditOpen]);
 
   const getSubjects = async () => {
     axios
