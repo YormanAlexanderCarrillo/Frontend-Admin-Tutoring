@@ -22,7 +22,7 @@ const handler = NextAuth({
 
           console.log(response);
 
-          if (response.data.userData.role === "ADMIN" || response.data.userData.role === "TUTOR") {
+          if (response.data.userData.role === "ADMINISTRATOR" || response.data.userData.role === "TUTOR") {
             return response.data;
           } else {
             return null;
