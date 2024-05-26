@@ -16,7 +16,7 @@ function LoginForm() {
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.push("/dashboard");
+      router.push("/managementSubjects");
     }
   }, [status]);
 
