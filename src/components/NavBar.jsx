@@ -73,7 +73,6 @@ function NavBar() {
                     </NavbarMenu>
                 </Navbar>
             ) : (
-
                 <nav className="bg-zinc-800/85 ">
                     <div className="flex items-center justify-center space-x-10 h-16">
                         <Link
