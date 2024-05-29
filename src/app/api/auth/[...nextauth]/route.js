@@ -20,7 +20,7 @@ const handler = NextAuth({
             }
           );
 
-          console.log(response);
+          //console.log(response);
 
           if (response.data.userData.role === "ADMINISTRATOR" || response.data.userData.role === "TUTOR") {
             return response.data;

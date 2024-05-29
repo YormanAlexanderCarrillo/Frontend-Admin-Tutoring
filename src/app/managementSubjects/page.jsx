@@ -1,4 +1,4 @@
-import TableSubjects from '@/components/TableSubjects'
+import TableSubjects from '@/components/ComponentsManagementSubjects/TableSubjects'
 import React from 'react'
 
 function ManagementSubjectsPage() {
