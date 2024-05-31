@@ -17,6 +17,7 @@ import { CiCirclePlus, CiEdit } from "react-icons/ci";
 import { MdDeleteOutline } from "react-icons/md";
 import { MdOutlineBookmarkAdd } from "react-icons/md";
 import ModalCreateTutors from "./ModalCreateTutors";
+import ModalAddSubject from "./ModalAddSubject";
 
 const columns = [
   { name: "Nombre", uid: "name" },
@@ -30,8 +31,10 @@ function TableTutors() {
   const URLAPI = process.env.NEXT_PUBLIC_BACKEND_URL;
   const { data: session, status } = useSession();
   const [tutors, setTutors] = useState([]);
+  const [subjects, setSubjects] = useState([]);
   const [isCreateTutorOpen, setIsCreateTutorOpen] = useState(false);
   const [isEditTutorOpen, setIsEditTutorOpen] = useState(false);
+  const [isAddSubjectOpen, setIsAddSubjectOpen] = useState(false);
   const [selectedTutor, setSelectedTutor] = useState(null);
 
   useEffect(() => {
@@ -39,6 +42,12 @@ function TableTutors() {
       getTutors();
     }
   }, [status, isCreateTutorOpen, isEditTutorOpen]);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      getSubjects();
+    }
+  }, [isAddSubjectOpen]);
 
   const getTutors = async () => {
     axios
@@ -56,12 +65,33 @@ function TableTutors() {
       });
   };
 
+  const getSubjects = async () => {
+    axios
+      .get(`${URLAPI}/subject/get-all-subjects`, {
+        headers: {
+          Authorization: `Bearer ${session?.user.token}`,
+        },
+      })
+      .then((res) => {
+        console.log(res.data.data);
+        setSubjects(res.data.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   const openCreateTutorModal = () => {
     setIsCreateTutorOpen(true);
   };
 
   const openEditTutorModal = (tutor) => {
     setIsEditTutorOpen(true);
+  };
+
+  const openAddSubjectModal = (tutor) => {
+    setSelectedTutor(tutor);
+    setIsAddSubjectOpen(true);
   };
 
   const renderCell = useCallback((tutor, columnKey) => {
@@ -77,7 +107,10 @@ function TableTutors() {
         return (
           <div className="relative flex items-center gap-2">
             <Tooltip color="primary" content="Asignar Materias">
-              <span className="text-lg text-primary cursor-pointer active:opacity-50">
+              <span
+                className="text-lg text-primary cursor-pointer active:opacity-50"
+                onClick={() => openAddSubjectModal(tutor)}
+              >
                 <MdOutlineBookmarkAdd />
               </span>
             </Tooltip>
@@ -142,6 +175,13 @@ function TableTutors() {
         onOpen={() => setIsCreateTutorOpen(true)}
         onOpenChange={setIsCreateTutorOpen}
         session={session}
+      />
+      <ModalAddSubject
+        isOpen={isAddSubjectOpen}
+        onOpenChange={setIsAddSubjectOpen}
+        session={session}
+        subjects={subjects}
+        tutor={selectedTutor}
       />
     </div>
   );
