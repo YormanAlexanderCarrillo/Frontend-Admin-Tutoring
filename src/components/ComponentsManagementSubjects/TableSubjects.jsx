@@ -38,7 +38,7 @@ export default function TableSubjects() {
     if (status === "authenticated") {
       getSubjects();
     }
-  }, [status,isCreateOpen,isEditOpen]);
+  }, [status, isCreateOpen, isEditOpen]);
 
   const getSubjects = async () => {
     axios
@@ -49,6 +49,22 @@ export default function TableSubjects() {
       })
       .then((response) => {
         setSubjects(response.data.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const handleDeleteSubject = async (subjectId) => {
+    axios
+      .delete(`${URLAPI}/subject/delete-subject/${subjectId}`, {
+        headers: {
+          Authorization: `Bearer ${session?.user.token}`,
+        },
+      })
+      .then((response) => {
+        console.log(response.data);
+        getSubjects();
       })
       .catch((error) => {
         console.log(error);
@@ -77,12 +93,16 @@ export default function TableSubjects() {
         return (
           <div className="relative flex items-center gap-2">
             <Tooltip color="warning" content="Editar materia">
-              <span className="text-lg text-warning cursor-pointer active:opacity-50" onClick={() => openEditModal(subject)}>
+              <span
+                className="text-lg text-warning cursor-pointer active:opacity-50"
+                onClick={() => openEditModal(subject)}
+              >
                 <CiEdit />
               </span>
             </Tooltip>
             <Tooltip color="danger" content="Eliminar Materia">
-              <span className="text-lg text-danger cursor-pointer active:opacity-50">
+              <span className="text-lg text-danger cursor-pointer active:opacity-50"
+              onClick={()=> handleDeleteSubject(subject._id)}>
                 <MdDeleteOutline />
               </span>
             </Tooltip>
@@ -105,10 +125,7 @@ export default function TableSubjects() {
     <div className="flex flex-col items-center w-3/4">
       <div className="mb-4 w-full flex justify-end">
         <Button color="warning" onClick={openCreateModal}>
-          <CiCirclePlus
-            size={30}
-            color="black"
-          />
+          <CiCirclePlus size={30} color="black" />
         </Button>
       </div>
       <Table aria-label="Example table with custom cells">
