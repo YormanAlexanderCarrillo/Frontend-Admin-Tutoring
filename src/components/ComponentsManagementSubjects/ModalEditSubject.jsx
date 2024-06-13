@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   ModalContent,
@@ -8,37 +8,55 @@ import {
   Button,
   Input,
 } from "@nextui-org/react";
-import { Time } from "@internationalized/date";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
 
 function ModalEditSubject({ isOpen, onOpenChange, session, subject }) {
   const URLAPI = process.env.NEXT_PUBLIC_BACKEND_URL;
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && subject) {
+      setCode(subject.subjectCode);
+      setName(subject.name);
+      setDescription(subject.description);
+    }
+  }, [isOpen, subject]);
 
   const handleUpdateSubject = async (event) => {
     event.preventDefault();
-    const subject = {
+    setIsLoading(true);
+    const subjectUpdate = {
       subjectCode: code,
       name: name,
       description: description,
     };
     await axios
-      .post(`${URLAPI}/subject/register-subject`, subject, {
+      .put(`${URLAPI}/subject/update-subject/${subject._id}`, subjectUpdate, {
         headers: {
           Authorization: `Bearer ${session.user.token}`,
         },
       })
       .then((response) => {
-        console.log(response);
+        console.log(response.data);
         onOpenChange(false);
         setCode("");
         setName("");
         setDescription("");
+        if (response.data.status === 200) {
+          toast.success(response.data.message, {
+            position: "top-right",
+            autoClose: 2000,
+          });
+        }
+        setIsLoading(false);
       })
       .catch((error) => {
         console.log(error);
+        setIsLoading(false);
       });
   };
 
@@ -54,7 +72,7 @@ function ModalEditSubject({ isOpen, onOpenChange, session, subject }) {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1 items-center">
-                Crear Asignatura
+                Actualizar Asignatura
               </ModalHeader>
               <ModalBody>
                 <form
@@ -71,7 +89,7 @@ function ModalEditSubject({ isOpen, onOpenChange, session, subject }) {
                       type="text"
                       variant="filled"
                       margin="normal"
-                      value={subject.subjectCode}
+                      value={code}
                       onChange={(event) => setCode(event.target.value)}
                     />
                     <Input
@@ -83,7 +101,7 @@ function ModalEditSubject({ isOpen, onOpenChange, session, subject }) {
                       type="text"
                       variant="filled"
                       margin="normal"
-                      value={subject.name}
+                      value={name}
                       onChange={(event) => setName(event.target.value)}
                     />
                     <Input
@@ -95,7 +113,7 @@ function ModalEditSubject({ isOpen, onOpenChange, session, subject }) {
                       type="text"
                       variant="filled"
                       margin="normal"
-                      value={subject.description}
+                      value={description}
                       onChange={(event) => setDescription(event.target.value)}
                     />
                     <div className="flex justify-end pt-5">
@@ -104,6 +122,7 @@ function ModalEditSubject({ isOpen, onOpenChange, session, subject }) {
                         variant="solid"
                         color="success"
                         type="submit"
+                        isLoading={isLoading}
                       >
                         Actualizar
                       </Button>
@@ -115,6 +134,7 @@ function ModalEditSubject({ isOpen, onOpenChange, session, subject }) {
           )}
         </ModalContent>
       </Modal>
+      <ToastContainer />
     </div>
   );
 }
