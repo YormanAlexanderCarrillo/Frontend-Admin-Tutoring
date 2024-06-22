@@ -19,6 +19,7 @@ import { MdOutlineBookmarkAdd } from "react-icons/md";
 import ModalCreateTutors from "./ModalCreateTutors";
 import ModalAddSubject from "./ModalAddSubject";
 import { toast } from "react-toastify";
+import ModalEditTutor from "./ModalEditTutor";
 
 const columns = [
   { name: "Nombre", uid: "name" },
@@ -116,6 +117,7 @@ function TableTutors() {
   };
 
   const openEditTutorModal = (tutor) => {
+    setSelectedTutor(tutor)
     setIsEditTutorOpen(true);
   };
 
@@ -214,6 +216,13 @@ function TableTutors() {
         onOpenChange={setIsAddSubjectOpen}
         session={session}
         subjects={subjects}
+        tutor={selectedTutor}
+      />
+      <ModalEditTutor
+        isOpen={isEditTutorOpen}
+        onOpen={() => setIsEditTutorOpen(true)}
+        onOpenChange={setIsEditTutorOpen}
+        session={session}
         tutor={selectedTutor}
       />
     </div>
