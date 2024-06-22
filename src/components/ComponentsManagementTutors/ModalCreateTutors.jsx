@@ -1,5 +1,5 @@
-"use client"
-import React, {useState} from "react";
+"use client";
+import React, { useState } from "react";
 import {
   Modal,
   ModalContent,
@@ -9,14 +9,15 @@ import {
   Input,
 } from "@nextui-org/react";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
 
-function ModalCreateTutors({isOpen, onOpen, onOpenChange, session}) {
+function ModalCreateTutors({ isOpen, onOpen, onOpenChange, session }) {
   const URLAPI = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState("");
   const [lastname, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
 
   const handleCreateTutor = async (event) => {
     event.preventDefault();
@@ -26,6 +27,7 @@ function ModalCreateTutors({isOpen, onOpen, onOpenChange, session}) {
       email: email,
       password: password,
     };
+    setIsLoading(true);
     await axios
       .post(`${URLAPI}/auth/register-tutor`, tutor, {
         headers: {
@@ -39,10 +41,23 @@ function ModalCreateTutors({isOpen, onOpen, onOpenChange, session}) {
         setLastName("");
         setEmail("");
         setPassword("");
+        setIsLoading(false);
+        if (response.data.status === 200) {
+          toast.success(response.data.message, {
+            position: "top-right",
+            autoClose: 2000,
+          });
+        }
       })
       .catch((error) => {
         console.log(error);
+        setIsLoading(false);
+        toast.error("Ocurrio un error", {
+          position: "top-right",
+          autoClose: 2000,
+        });
       });
+    setIsLoading(false);
   };
   return (
     <div className="flex flex-col gap-2">
@@ -80,7 +95,7 @@ function ModalCreateTutors({isOpen, onOpen, onOpenChange, session}) {
                       className="bg-white rounded-xl mb-5"
                       fullWidth
                       isRequired
-                      id="name"
+                      id="lastname"
                       label="Apellido"
                       type="text"
                       variant="filled"
@@ -92,7 +107,7 @@ function ModalCreateTutors({isOpen, onOpen, onOpenChange, session}) {
                       className="bg-white rounded-xl mb-5"
                       fullWidth
                       isRequired
-                      id="reason"
+                      id="email"
                       label="Correo"
                       type="text"
                       variant="filled"
@@ -104,7 +119,7 @@ function ModalCreateTutors({isOpen, onOpen, onOpenChange, session}) {
                       className="bg-white rounded-xl"
                       fullWidth
                       isRequired
-                      id="reason"
+                      id="password"
                       label="Contraseña"
                       type="password"
                       variant="filled"
@@ -118,6 +133,7 @@ function ModalCreateTutors({isOpen, onOpen, onOpenChange, session}) {
                         variant="solid"
                         color="warning"
                         type="submit"
+                        isLoading={isLoading}
                       >
                         Registrar
                       </Button>
@@ -129,6 +145,7 @@ function ModalCreateTutors({isOpen, onOpen, onOpenChange, session}) {
           )}
         </ModalContent>
       </Modal>
+      <ToastContainer />
     </div>
   );
 }

@@ -84,7 +84,7 @@ function ModalEditSubject({ isOpen, onOpenChange, session, subject }) {
                       className="bg-white rounded-xl mb-5"
                       fullWidth
                       isRequired
-                      id="name"
+                      id="code"
                       label="Codigo"
                       type="text"
                       variant="filled"
