@@ -18,6 +18,7 @@ import { MdDeleteOutline } from "react-icons/md";
 import { MdOutlineBookmarkAdd } from "react-icons/md";
 import ModalCreateTutors from "./ModalCreateTutors";
 import ModalAddSubject from "./ModalAddSubject";
+import { toast } from "react-toastify";
 
 const columns = [
   { name: "Nombre", uid: "name" },
@@ -41,10 +42,16 @@ function TableTutors() {
     if (status === "authenticated") {
       getTutors();
     }
-  }, [status, isCreateTutorOpen, isEditTutorOpen]);
+  }, [status]);
 
   useEffect(() => {
-    if (status === "authenticated") {
+    if (isEditTutorOpen === false || isCreateTutorOpen === false) {
+      getTutors();
+    }
+  }, [isEditTutorOpen, isCreateTutorOpen]);
+
+  useEffect(() => {
+    if (isAddSubjectOpen === true) {
       getSubjects();
     }
   }, [isAddSubjectOpen]);
@@ -57,7 +64,7 @@ function TableTutors() {
         },
       })
       .then((res) => {
-        //console.log(res.data);
+        console.log(res.data);
         setTutors(res.data);
       })
       .catch((err) => {
@@ -75,6 +82,29 @@ function TableTutors() {
       .then((res) => {
         console.log(res.data.data);
         setSubjects(res.data.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const handleDeleteTutor = async (tutorId) => {
+    axios
+      .delete(`${URLAPI}/user/delete-tutor/${tutorId}`, {
+        headers: {
+          Authorization: `Bearer ${session?.user.token}`,
+        },
+      })
+      .then((res) => {
+        console.log(res.data);
+        if (res.data.status === 200) {
+          getTutors();
+          toast.success(res.data.message, {
+            position: "top-right",
+            autoClose: 2000,
+          });
+        }
+        
       })
       .catch((err) => {
         console.log(err);
@@ -123,7 +153,10 @@ function TableTutors() {
               </span>
             </Tooltip>
             <Tooltip color="danger" content="Eliminar Tutor">
-              <span className="text-lg text-danger cursor-pointer active:opacity-50">
+              <span
+                className="text-lg text-danger cursor-pointer active:opacity-50"
+                onClick={() => handleDeleteTutor(tutor._id)}
+              >
                 <MdDeleteOutline />
               </span>
             </Tooltip>
