@@ -18,7 +18,7 @@ import { MdDeleteOutline } from "react-icons/md";
 import { MdOutlineBookmarkAdd } from "react-icons/md";
 import ModalCreateTutors from "./ModalCreateTutors";
 import ModalAddSubject from "./ModalAddSubject";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import ModalEditTutor from "./ModalEditTutor";
 
 const columns = [
@@ -65,7 +65,7 @@ function TableTutors() {
         },
       })
       .then((res) => {
-        console.log(res.data);
+        //console.log(res.data);
         setTutors(res.data);
       })
       .catch((err) => {
@@ -81,7 +81,7 @@ function TableTutors() {
         },
       })
       .then((res) => {
-        console.log(res.data.data);
+        //console.log(res.data.data);
         setSubjects(res.data.data);
       })
       .catch((err) => {
@@ -97,7 +97,7 @@ function TableTutors() {
         },
       })
       .then((res) => {
-        console.log(res.data);
+        //console.log(res.data);
         if (res.data.status === 200) {
           getTutors();
           toast.success(res.data.message, {
@@ -108,7 +108,11 @@ function TableTutors() {
         
       })
       .catch((err) => {
-        console.log(err);
+        //console.log(err);
+        toast.error("Ocurrio un error", {
+          position: "top-right",
+          autoClose: 2000,
+        });
       });
   };
 
@@ -225,6 +229,7 @@ function TableTutors() {
         session={session}
         tutor={selectedTutor}
       />
+      <ToastContainer />
     </div>
   );
 }
