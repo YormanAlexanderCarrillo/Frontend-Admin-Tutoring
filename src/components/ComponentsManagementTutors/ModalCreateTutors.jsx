@@ -9,7 +9,7 @@ import {
   Input,
 } from "@nextui-org/react";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 function ModalCreateTutors({ isOpen, onOpen, onOpenChange, session }) {
   const URLAPI = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -35,7 +35,7 @@ function ModalCreateTutors({ isOpen, onOpen, onOpenChange, session }) {
         },
       })
       .then((response) => {
-        console.log(response);
+        //console.log(response);
         onOpenChange(false);
         setName("");
         setLastName("");
@@ -50,7 +50,7 @@ function ModalCreateTutors({ isOpen, onOpen, onOpenChange, session }) {
         }
       })
       .catch((error) => {
-        console.log(error);
+        //console.log(error);
         setIsLoading(false);
         toast.error("Ocurrio un error", {
           position: "top-right",
@@ -145,7 +145,7 @@ function ModalCreateTutors({ isOpen, onOpen, onOpenChange, session }) {
           )}
         </ModalContent>
       </Modal>
-      <ToastContainer />
+      {/* <ToastContainer />*/}
     </div>
   );
 }

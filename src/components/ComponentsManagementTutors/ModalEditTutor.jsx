@@ -12,7 +12,7 @@ import {
 } from "@nextui-org/react";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 function ModalEditTutor({ isOpen, onOpenChange, session, tutor }) {
   const URLAPI = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -58,7 +58,7 @@ function ModalEditTutor({ isOpen, onOpenChange, session, tutor }) {
         },
       })
       .then((response) => {
-        console.log(response.data);
+        //console.log(response.data);
         onOpenChange(false);
         setName("");
         setLastName("");
@@ -66,7 +66,7 @@ function ModalEditTutor({ isOpen, onOpenChange, session, tutor }) {
         setRoleSelected("");
         setIsLoading(false);
         if (response.data.status === 200) {
-          toast.success("OK", {
+          toast.success(response.data.message, {
             position: "top-right",
             autoClose: 2000,
           })
@@ -74,12 +74,12 @@ function ModalEditTutor({ isOpen, onOpenChange, session, tutor }) {
         
       })
       .catch((error) => {
-        console.log(error);
+        //console.log(error);
         setIsLoading(false);
-        // toast.error("Ocurrio un error", {
-        //   position: "top-right",
-        //   autoClose: 2000,
-        // });
+        toast.error("Ocurrio un error", {
+          position: "top-right",
+          autoClose: 2000,
+        });
       });
   };
 
@@ -181,7 +181,7 @@ function ModalEditTutor({ isOpen, onOpenChange, session, tutor }) {
           )}
         </ModalContent>
       </Modal>
-      <ToastContainer/>
+      {/* <ToastContainer/> */}
     </div>
   );
 }
