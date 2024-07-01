@@ -14,10 +14,12 @@ import {
 import { CiEdit } from "react-icons/ci";
 import { MdDeleteOutline } from "react-icons/md";
 import { CiCirclePlus } from "react-icons/ci";
+import { IoDocumentAttachOutline } from "react-icons/io5";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import ModalCreateSubject from "./ModalCreateSubject";
 import ModalEditSubject from "./ModalEditSubject";
+import ModalAddMaterial from "./ModalAddMaterial";
 
 const columns = [
   { name: "Codigo", uid: "subjectCode" },
@@ -30,6 +32,7 @@ export default function TableSubjects() {
   const URLAPI = process.env.NEXT_PUBLIC_BACKEND_URL;
   const { data: session, status } = useSession();
   const [subjects, setSubjects] = useState([]);
+  const [isAddMaterialOpen, setIsAddMaterialOpen] = useState(false)
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState(null);
@@ -71,6 +74,11 @@ export default function TableSubjects() {
       });
   };
 
+  const openAddMaterial = (subject)=>{
+    setSelectedSubject(subject)
+    setIsAddMaterialOpen(true)
+  }
+
   const openCreateModal = () => {
     setIsCreateOpen(true);
   };
@@ -92,6 +100,14 @@ export default function TableSubjects() {
       case "actions":
         return (
           <div className="relative flex items-center gap-2">
+            <Tooltip color="success" content="Agregar material">
+              <span
+                className="text-lg text-success cursor-pointer active:opacity-50"
+                onClick={() => openAddMaterial(subject)}
+              >
+                <IoDocumentAttachOutline />
+              </span>
+            </Tooltip>
             <Tooltip color="warning" content="Editar materia">
               <span
                 className="text-lg text-warning cursor-pointer active:opacity-50"
@@ -161,6 +177,13 @@ export default function TableSubjects() {
         onOpenChange={setIsEditOpen}
         session={session}
         subject={selectedSubject}
+      />
+
+      <ModalAddMaterial
+      isOpen={isAddMaterialOpen}
+      onOpenChange={setIsAddMaterialOpen}
+      session={session}
+      subject={selectedSubject}
       />
     </div>
   );
