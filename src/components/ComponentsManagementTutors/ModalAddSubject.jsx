@@ -1,28 +1,51 @@
 "use client";
-import { Button, Modal, ModalBody, ModalContent, ModalHeader, Select, SelectItem } from "@nextui-org/react";
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  Select,
+  SelectItem,
+} from "@nextui-org/react";
 import axios from "axios";
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 
 function ModalAddSubject({ isOpen, onOpenChange, session, subjects, tutor }) {
   const APIURL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const [idSubject, setIdSubject] = useState();
-  const [idTutor, setIdTutor] = useState("");
 
   const handleAddSubject = async (event) => {
-    event.preventDefault()
-    console.log(tutor._id);
-    setIdTutor(idTutor)
+    event.preventDefault();
+    console.log(session.user.token);
     axios
-      .post(`${APIURL}/user/add-subject-to-tutor/${idTutor}/${idSubject}`, {
-        Headers: {
-          Authorization: `Bearer ${session.user.token}`,
-        },
-      })
+      .post(
+        `${APIURL}/user/add-subject-to-tutor/${tutor._id}/${idSubject}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${session.user.token}`,
+          },
+        }
+      )
       .then((response) => {
-        console.log(response);
+        //console.log(response);
+        if (response.data.status === 200) {
+          onOpenChange(false);
+          setIdSubject("");
+          toast.success(response.data.message, {
+            position: "top-right",
+            autoClose: 1000,
+          });
+        }
+
       })
       .catch((error) => {
-        console.log(error);
+        toast.error("Ocurrio un error", {
+          position: "top-right",
+          autoClose: 1000,
+        });
       });
   };
   return (
@@ -50,9 +73,10 @@ function ModalAddSubject({ isOpen, onOpenChange, session, subjects, tutor }) {
                       label="Asignatura"
                       placeholder="Seleccione asignatura"
                       className="max-w-xs"
+                      onChange={(event) => setIdSubject(event.target.value)}
                     >
                       {subjects.map((subject) => (
-                        <SelectItem key={subject._id} value={subject._id} onClick={(value)=> setIdSubject(value._id)}>
+                        <SelectItem key={subject._id} value={subject._id}>
                           {subject.name}
                         </SelectItem>
                       ))}
