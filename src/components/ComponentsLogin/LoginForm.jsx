@@ -16,7 +16,11 @@ function LoginForm() {
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.push("/managementSubjects");
+      if (session?.user?.role === "ADMINISTRATOR") {
+        router.push("/managementSubjects");
+      } else if (session?.user?.role === "TUTOR") {
+        router.push("/managementTutoring");
+      }
     }
   }, [status]);
 
@@ -35,12 +39,22 @@ function LoginForm() {
         position: "top-right",
         autoClose: 2000,
       });
-      setIsLoading(false);
-
-      return;
     }
+
+    if (responseNextAuth.ok) {
+      const response = await fetch("/api/auth/session");
+      const session = await response.json();
+
+      if (session?.user?.role === "ADMINISTRATOR") {
+        router.push("/managementSubjects");
+      } else if (session?.user?.role === "TUTOR") {
+        router.push("/managementTutoring");
+      }
+    }
+
     setIsLoading(false);
-    router.push("/managementSubjects");
+
+    return;
   };
 
   if (status === "loading") {

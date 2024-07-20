@@ -23,7 +23,7 @@ const handler = NextAuth({
           //console.log(response);
 
           if (response.data.userData.role === "ADMINISTRATOR" || response.data.userData.role === "TUTOR") {
-            return response.data;
+            return {...response.data, role: response.data.userData.role};
           } else {
             return null;
           }
@@ -36,7 +36,10 @@ const handler = NextAuth({
   ],
   callbacks: {
     async jwt({ token, user }) {
-      return { ...token, ...user };
+      if(user){
+        token.role = user.role;
+      }
+      return { ...token, ...user};
     },
     async session({ session, token }) {
       session.user = token;
