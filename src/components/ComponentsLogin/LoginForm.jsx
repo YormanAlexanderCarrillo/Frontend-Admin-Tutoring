@@ -16,9 +16,13 @@ function LoginForm() {
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.push("/managementSubjects");
+      if (session.user.userData.role === "ADMINISTRATOR") {
+        router.push("/managementSubjects");
+      } else if (session.user.userData.role === "TUTOR") {
+        router.push("/managementTutorings");
+      }
     }
-  }, [status]);
+  }, [status, session]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -40,7 +44,7 @@ function LoginForm() {
       return;
     }
     setIsLoading(false);
-    router.push("/managementSubjects");
+    //router.push("/managementSubjects");
   };
 
   if (status === "loading") {
