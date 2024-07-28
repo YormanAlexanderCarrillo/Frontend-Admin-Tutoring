@@ -17,81 +17,70 @@ import { CiCirclePlus } from "react-icons/ci";
 import { IoDocumentAttachOutline } from "react-icons/io5";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import ModalCreateSubject from "./ModalCreateSubject";
-import ModalEditSubject from "./ModalEditSubject";
-import ModalAddMaterial from "./ModalAddMaterial";
+import ModalCreateForum from "./ModalCreateForum";
 
 const columns = [
-  { name: "Codigo", uid: "subjectCode" },
-  { name: "Nombre", uid: "name" },
-  { name: "Descripcion", uid: "description" },
+  { name: "Titulo", uid: "title" },
+  { name: "Descripción", uid: "description" },
   { name: "Acciones", uid: "actions" },
 ];
 
-export default function TableSubjects() {
+export default function TableForum() {
   const URLAPI = process.env.NEXT_PUBLIC_BACKEND_URL;
   const { data: session, status } = useSession();
-  const [subjects, setSubjects] = useState([]);
-  const [isAddMaterialOpen, setIsAddMaterialOpen] = useState(false)
+  const [forums, setForums] = useState([]);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [selectedSubject, setSelectedSubject] = useState(null);
 
   useEffect(() => {
     if (status === "authenticated") {
-      getSubjects();
+      getForums();
     }
   }, [status, isCreateOpen, isEditOpen]);
 
-
-  const getSubjects = async () => {
-    
+  const getForums = async () => {
     axios
-      .get(`${URLAPI}/subject/get-all-subjects`, {
+      .get(`${URLAPI}/forum/get-forums`, {
         headers: {
           Authorization: `Bearer ${session.user.token}`,
         },
       })
       .then((response) => {
-        setSubjects(response.data.data);
+        setForums(response.data.data);
       })
       .catch((error) => {
         console.log(error);
       });
   };
 
-  const handleDeleteSubject = async (subjectId) => {
+  const handleDeleteForum = async (forumId) => {
     axios
-      .delete(`${URLAPI}/subject/delete-subject/${subjectId}`, {
+      .delete(`${URLAPI}/forum/delete-forum/${forumId}`, {
         headers: {
           Authorization: `Bearer ${session?.user.token}`,
         },
       })
       .then((response) => {
-        console.log(response.data);
-        getSubjects();
+        if (response.data.status === 200) {
+          getForums();
+        }
       })
       .catch((error) => {
         console.log(error);
       });
   };
 
-  const openAddMaterial = (subject)=>{
-    setSelectedSubject(subject)
-    setIsAddMaterialOpen(true)
-  }
-
-  const openCreateModal = () => {
+  const openCreateForum = () => {
     setIsCreateOpen(true);
   };
 
-  const openEditModal = (subject) => {
-    setSelectedSubject(subject);
+  const openEditForum = (forum) => {
+    setSelectedSubject(forum);
     setIsEditOpen(true);
   };
 
-  const renderCell = useCallback((subject, columnKey) => {
-    const cellValue = subject[columnKey];
+  const renderCell = useCallback((forum, columnKey) => {
+    const cellValue = forum[columnKey];
     switch (columnKey) {
       case "name":
         return (
@@ -102,25 +91,19 @@ export default function TableSubjects() {
       case "actions":
         return (
           <div className="relative flex items-center gap-2">
-            <Tooltip color="success" content="Agregar material">
-              <span
-                className="text-lg text-success cursor-pointer active:opacity-50"
-                onClick={() => openAddMaterial(subject)}
-              >
-                <IoDocumentAttachOutline />
-              </span>
-            </Tooltip>
-            <Tooltip color="warning" content="Editar materia">
+            <Tooltip color="warning" content="Editar foro">
               <span
                 className="text-lg text-warning cursor-pointer active:opacity-50"
-                onClick={() => openEditModal(subject)}
+                onClick={() => openEditForum(forum)}
               >
                 <CiEdit />
               </span>
             </Tooltip>
-            <Tooltip color="danger" content="Eliminar Materia">
-              <span className="text-lg text-danger cursor-pointer active:opacity-50"
-              onClick={()=> handleDeleteSubject(subject._id)}>
+            <Tooltip color="danger" content="Eliminar foro">
+              <span
+                className="text-lg text-danger cursor-pointer active:opacity-50"
+                onClick={() => handleDeleteForum(forum._id)}
+              >
                 <MdDeleteOutline />
               </span>
             </Tooltip>
@@ -142,7 +125,7 @@ export default function TableSubjects() {
   return (
     <div className="flex flex-col items-center w-3/4">
       <div className="mb-4 w-full flex justify-end">
-        <Button color="warning" onClick={openCreateModal}>
+        <Button color="warning" onClick={openCreateForum}>
           <CiCirclePlus size={30} color="black" />
         </Button>
       </div>
@@ -157,35 +140,20 @@ export default function TableSubjects() {
             </TableColumn>
           )}
         </TableHeader>
-        <TableBody items={subjects}>
-          {(subject) => (
-            <TableRow key={subject._id}>
+        <TableBody items={forums}>
+          {(forum) => (
+            <TableRow key={forum._id}>
               {(columnKey) => (
-                <TableCell>{renderCell(subject, columnKey)}</TableCell>
+                <TableCell>{renderCell(forum, columnKey)}</TableCell>
               )}
             </TableRow>
           )}
         </TableBody>
       </Table>
-      <ModalCreateSubject
+      <ModalCreateForum
         isOpen={isCreateOpen}
-        onOpen={() => setIsCreateOpen(true)}
         onOpenChange={setIsCreateOpen}
         session={session}
-      />
-      <ModalEditSubject
-        isOpen={isEditOpen}
-        onOpen={() => setIsEditOpen(true)}
-        onOpenChange={setIsEditOpen}
-        session={session}
-        subject={selectedSubject}
-      />
-
-      <ModalAddMaterial
-      isOpen={isAddMaterialOpen}
-      onOpenChange={setIsAddMaterialOpen}
-      session={session}
-      subject={selectedSubject}
       />
     </div>
   );
