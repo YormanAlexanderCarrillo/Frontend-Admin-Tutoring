@@ -6,14 +6,17 @@ import { useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import { ToastContainer, toast } from "react-toastify";
 import { Button } from "@nextui-org/react";
+import ModalRecoveryPassword from "./ModalRecoveryPassword";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
+  const [isOpenModal, setIsOpenModal] = useState(false)
   const router = useRouter();
   const { data: session, status } = useSession();
+  
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -60,6 +63,10 @@ function LoginForm() {
       setEmailError("");
     }
   };
+
+  const handleOnCloseModal = ()=>{
+    setIsOpenModal(!isOpenModal)
+  }
 
   if (status === "loading") {
     return (
@@ -110,11 +117,12 @@ function LoginForm() {
           </div>
         </form>
         <div className="flex justify-end items-center sm:mr-10 p-8 sm:pt-10 sm:mb-5 space-x-3 sm:space-x-7 ">
-          <a className="text-white text-xs sm:text-base" href="">
+          <a className="text-white text-xs sm:text-base cursor-pointer"  onClick={handleOnCloseModal}>
             ¿Olvidó su contraseña?
           </a>
         </div>
       </div>
+      <ModalRecoveryPassword isOpen={isOpenModal} onOpenChange={handleOnCloseModal} />
       <ToastContainer />
     </div>
   );
