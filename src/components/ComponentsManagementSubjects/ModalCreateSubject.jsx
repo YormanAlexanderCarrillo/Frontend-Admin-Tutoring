@@ -9,22 +9,50 @@ import {
   Input,
 } from "@nextui-org/react";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 function ModalCreateSubject({ isOpen, onOpen, onOpenChange, session }) {
-  const URLAPI = process.env.NEXT_PUBLIC_BACKEND_URL
+  const URLAPI = process.env.NEXT_PUBLIC_BACKEND_URL;
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [codeError, setCodeError] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleCodeChange = (event) => {
+    const value = event.target.value;
+    setCode(value);
+    if (/^\d*$/.test(value)) {
+      setCodeError("");
+    } else {
+      setCodeError("El código solo puede contener números positivos.");
+    }
+  };
+
+  const handleNameChange = (event) => {
+    const value = event.target.value;
+    setName(value);
+    if (/^[A-Za-zÁáÉéÍíÓóÚúÜüÑñ\s\-\.]*$/.test(value)) {
+      setNameError("");
+    } else {
+      setNameError("El nombre de la materia solo puede contener letras.");
+    }
+  };
 
   const handleSaveSubject = async (event) => {
     event.preventDefault();
+    if (codeError || nameError || !code || !name) {
+      return;
+    }
+    setIsLoading(true);
     const subject = {
       subjectCode: code,
       name: name,
       description: description,
     };
-    await axios
-      .post(
+    try {
+      const response = await axios.post(
         `${URLAPI}/subject/register-subject`,
         subject,
         {
@@ -32,18 +60,26 @@ function ModalCreateSubject({ isOpen, onOpen, onOpenChange, session }) {
             Authorization: `Bearer ${session.user.token}`,
           },
         }
-      )
-      .then((response) => {
-        console.log(response);
+      );
+      console.log(response);
+      if(response.data.status === 200){
         onOpenChange(false);
         setCode("");
         setName("");
         setDescription("");
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+        toast.success(response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+        });
+      }
+      
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
 
   return (
     <div className="flex flex-col gap-2">
@@ -69,14 +105,15 @@ function ModalCreateSubject({ isOpen, onOpen, onOpenChange, session }) {
                       className="bg-white rounded-xl mb-5"
                       fullWidth
                       isRequired
-                      id="name"
-                      label="Codigo"
+                      id="code"
+                      label="Código"
                       type="text"
                       variant="filled"
                       margin="normal"
                       value={code}
-                      onChange={(event) => setCode(event.target.value)}
+                      onChange={handleCodeChange}
                     />
+                    {codeError && <p className="text-red-500 text-sm mt-1 mb-3">{codeError}</p>}
                     <Input
                       className="bg-white rounded-xl mb-5"
                       fullWidth
@@ -87,13 +124,14 @@ function ModalCreateSubject({ isOpen, onOpen, onOpenChange, session }) {
                       variant="filled"
                       margin="normal"
                       value={name}
-                      onChange={(event) => setName(event.target.value)}
+                      onChange={handleNameChange}
                     />
+                    {nameError && <p className="text-red-500 text-sm mt-1 mb-3">{nameError}</p>}
                     <Input
                       className="bg-white rounded-xl"
                       fullWidth
                       isRequired
-                      id="reason"
+                      id="description"
                       label="Descripción"
                       type="text"
                       variant="filled"
@@ -107,6 +145,7 @@ function ModalCreateSubject({ isOpen, onOpen, onOpenChange, session }) {
                         variant="solid"
                         color="warning"
                         type="submit"
+                        isLoading={isLoading}
                       >
                         Guardar
                       </Button>

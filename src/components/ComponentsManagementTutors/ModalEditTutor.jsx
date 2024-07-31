@@ -21,6 +21,9 @@ function ModalEditTutor({ isOpen, onOpenChange, session, tutor }) {
   const [lastname, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [roleSelected, setRoleSelected] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [lastnameError, setLastnameError] = useState("");
+  const [emailError, setEmailError] = useState("");
 
   const roles = {
     TUTOR: "TUTOR",
@@ -42,8 +45,41 @@ function ModalEditTutor({ isOpen, onOpenChange, session, tutor }) {
     }
   }, [isOpen, tutor]);
 
+  const validateName = (value) => {
+    if (/^[A-Za-zÁáÉéÍíÓóÚúÜüÑñ\s]*$/.test(value)) {
+      setNameError("");
+      return true;
+    } else {
+      setNameError("El nombre solo puede contener letras.");
+      return false;
+    }
+  };
+
+  const validateLastname = (value) => {
+    if (/^[A-Za-zÁáÉéÍíÓóÚúÜüÑñ\s]*$/.test(value)) {
+      setLastnameError("");
+      return true;
+    } else {
+      setLastnameError("El apellido solo puede contener letras.");
+      return false;
+    }
+  };
+
+  const validateEmail = (value) => {
+    if (/^[^\s@]+@uptc\.edu\.co$/.test(value)) {
+      setEmailError("");
+      return true;
+    } else {
+      setEmailError("El correo debe terminar en @uptc.edu.co");
+      return false;
+    }
+  };
+
   const handleUpdateTutor = async (event) => {
     event.preventDefault();
+    if (!validateName(name) || !validateLastname(lastname) || !validateEmail(email)) {
+      return;
+    }
     const tutorUpdate = {
       name: name,
       lastname: lastname,
@@ -51,36 +87,31 @@ function ModalEditTutor({ isOpen, onOpenChange, session, tutor }) {
       role: roleSelected,
     };
     setIsLoading(true);
-    await axios
-      .put(`${URLAPI}/user/update-tutor/${tutor._id}`, tutorUpdate, {
+    try {
+      const response = await axios.put(`${URLAPI}/user/update-tutor/${tutor._id}`, tutorUpdate, {
         headers: {
           Authorization: `Bearer ${session.user.token}`,
         },
-      })
-      .then((response) => {
-        //console.log(response.data);
-        onOpenChange(false);
-        setName("");
-        setLastName("");
-        setEmail("");
-        setRoleSelected("");
-        setIsLoading(false);
-        if (response.data.status === 200) {
-          toast.success(response.data.message, {
-            position: "top-right",
-            autoClose: 2000,
-          })
-        }
-        
-      })
-      .catch((error) => {
-        //console.log(error);
-        setIsLoading(false);
-        toast.error("Ocurrio un error", {
+      });
+      onOpenChange(false);
+      setName("");
+      setLastName("");
+      setEmail("");
+      setRoleSelected("");
+      if (response.data.status === 200) {
+        toast.success(response.data.message, {
           position: "top-right",
           autoClose: 2000,
         });
+      }
+    } catch (error) {
+      toast.error("Ocurrió un error", {
+        position: "top-right",
+        autoClose: 2000,
       });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -104,7 +135,7 @@ function ModalEditTutor({ isOpen, onOpenChange, session, tutor }) {
                 >
                   <div className="w-4/5 sm:w-full ">
                     <Input
-                      className="bg-white rounded-xl mb-5"
+                      className="bg-white rounded-xl mb-2"
                       fullWidth
                       isRequired
                       id="name"
@@ -113,10 +144,14 @@ function ModalEditTutor({ isOpen, onOpenChange, session, tutor }) {
                       variant="filled"
                       margin="normal"
                       value={name}
-                      onChange={(event) => setName(event.target.value)}
+                      onChange={(event) => {
+                        setName(event.target.value);
+                        validateName(event.target.value);
+                      }}
                     />
+                    {nameError && <p className="text-red-500 text-sm mb-3">{nameError}</p>}
                     <Input
-                      className="bg-white rounded-xl mb-5"
+                      className="bg-white rounded-xl mb-2"
                       fullWidth
                       isRequired
                       id="lastname"
@@ -125,10 +160,14 @@ function ModalEditTutor({ isOpen, onOpenChange, session, tutor }) {
                       variant="filled"
                       margin="normal"
                       value={lastname}
-                      onChange={(event) => setLastName(event.target.value)}
+                      onChange={(event) => {
+                        setLastName(event.target.value);
+                        validateLastname(event.target.value);
+                      }}
                     />
+                    {lastnameError && <p className="text-red-500 text-sm mb-3">{lastnameError}</p>}
                     <Input
-                      className="bg-white rounded-xl"
+                      className="bg-white rounded-xl mb-2"
                       fullWidth
                       isRequired
                       id="email"
@@ -137,8 +176,12 @@ function ModalEditTutor({ isOpen, onOpenChange, session, tutor }) {
                       variant="filled"
                       margin="normal"
                       value={email}
-                      onChange={(event) => setEmail(event.target.value)}
+                      onChange={(event) => {
+                        setEmail(event.target.value);
+                        validateEmail(event.target.value);
+                      }}
                     />
+                    {emailError && <p className="text-red-500 text-sm mb-3">{emailError}</p>}
                     <Dropdown className="w-full">
                       <DropdownTrigger>
                         <Button
@@ -181,7 +224,6 @@ function ModalEditTutor({ isOpen, onOpenChange, session, tutor }) {
           )}
         </ModalContent>
       </Modal>
-      {/* <ToastContainer/> */}
     </div>
   );
 }
