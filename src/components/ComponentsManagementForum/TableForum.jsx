@@ -18,6 +18,7 @@ import { IoDocumentAttachOutline } from "react-icons/io5";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import ModalCreateForum from "./ModalCreateForum";
+import ModalEditForum from "./ModalEditForum";
 
 const columns = [
   { name: "Titulo", uid: "title" },
@@ -31,6 +32,7 @@ export default function TableForum() {
   const [forums, setForums] = useState([]);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [selectedForum, setSelectedForum]= useState()
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -75,7 +77,7 @@ export default function TableForum() {
   };
 
   const openEditForum = (forum) => {
-    setSelectedSubject(forum);
+    setSelectedForum(forum);
     setIsEditOpen(true);
   };
 
@@ -155,6 +157,7 @@ export default function TableForum() {
         onOpenChange={setIsCreateOpen}
         session={session}
       />
+      <ModalEditForum isOpen={isEditOpen} onOpenChange={setIsEditOpen} session={session} forum={selectedForum}/>
     </div>
   );
 }

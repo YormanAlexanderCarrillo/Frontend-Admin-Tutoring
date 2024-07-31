@@ -26,8 +26,8 @@ const handler = NextAuth({
             return null;
           }
         } catch (error) {
-          console.error("Error al autenticar:", error);
-          throw new Error("Ocurrio un error.");
+          //console.error("Error al autenticar:", error);
+          throw new Error("Credenciales no validas.");
         }
       },
     }),

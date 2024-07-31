@@ -7,40 +7,49 @@ import {
   ModalBody,
   Button,
   Input,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
 } from "@nextui-org/react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 
-function ModalEditSubject({ isOpen, onOpenChange, session, subject }) {
+const statusForum = {
+  true: "ACTIVO",
+  false: "INACTIVO",
+};
+
+function ModalEditForum({ isOpen, onOpenChange, session, forum }) {
   const URLAPI = process.env.NEXT_PUBLIC_BACKEND_URL;
-  const [code, setCode] = useState("");
-  const [name, setName] = useState("");
+  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [status, setStatus] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [codeError, setCodeError] = useState("");
-  const [nameError, setNameError] = useState("");
 
   useEffect(() => {
-    if (isOpen && subject) {
-      setCode(subject.subjectCode);
-      setName(subject.name);
-      setDescription(subject.description);
+    if (isOpen && forum) {
+      setTitle(forum.title);
+      setDescription(forum.description);
+      setStatus(forum.state);
     }
-  }, [isOpen, subject]);
+  }, [isOpen, forum]);
 
-  const handleUpdateSubject = async (event) => {
+  const handleSelectionChange = (key) => {
+    setStatus(key === "true");
+  };
+
+  const handleUpdateForum = async (event) => {
     event.preventDefault();
-    if (codeError || nameError) {
-      return;
-    }
     setIsLoading(true);
-    const subjectUpdate = {
-      subjectCode: code,
-      name: name,
+    const forumUpdate = {
+      title: title,
       description: description,
+      status: status,
     };
+    console.log(forumUpdate);
     await axios
-      .put(`${URLAPI}/subject/update-subject/${subject._id}`, subjectUpdate, {
+      .put(`${URLAPI}/forum/update-forum/${forum._id}`, forumUpdate, {
         headers: {
           Authorization: `Bearer ${session.user.token}`,
         },
@@ -48,9 +57,9 @@ function ModalEditSubject({ isOpen, onOpenChange, session, subject }) {
       .then((response) => {
         console.log(response.data);
         onOpenChange(false);
-        setCode("");
-        setName("");
+        setTitle("");
         setDescription("");
+        setStatus(null);
         if (response.data.status === 200) {
           toast.success(response.data.message, {
             position: "top-right",
@@ -60,31 +69,14 @@ function ModalEditSubject({ isOpen, onOpenChange, session, subject }) {
         setIsLoading(false);
       })
       .catch((error) => {
+        toast.error("No se pudo actualizar.", {
+          position: "top-right",
+          autoClose: 2000,
+        });
         console.log(error);
         setIsLoading(false);
       });
   };
-
-  const handleCodeChange = (event) => {
-    const value = event.target.value;
-    setCode(value);
-    if (/^\d*$/.test(value)) {
-      setCodeError("");
-    } else {
-      setCodeError("El código solo puede contener números positivos.");
-    }
-  };
-
-  const handleNameChange = (event) => {
-    const value = event.target.value;
-    setName(value);
-    if (/^[A-Za-zÁáÉéÍíÓóÚúÜüÑñ\s]*$/.test(value)) {
-      setNameError("");
-    } else {
-      setNameError("El nombre de la materia solo puede contener letras.");
-    }
-  };
-
 
   return (
     <div className="flex flex-col gap-2">
@@ -98,42 +90,26 @@ function ModalEditSubject({ isOpen, onOpenChange, session, subject }) {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1 items-center">
-                Actualizar Asignatura
+                Actualizar Foro
               </ModalHeader>
               <ModalBody>
                 <form
                   className="flex flex-col items-center"
-                  onSubmit={handleUpdateSubject}
+                  onSubmit={handleUpdateForum}
                 >
-                  <div className="w-4/5 sm:w-full ">
+                  <div className="w-4/5 sm:w-full">
                     <Input
                       className="bg-white rounded-xl mb-5"
                       fullWidth
                       isRequired
-                      id="code"
-                      label="Código"
+                      id="title"
+                      label="Titulo foro"
                       type="text"
                       variant="filled"
                       margin="normal"
-                      value={code}
-                      onChange={handleCodeChange}
+                      value={title}
+                      onChange={(event) => setTitle(event.target.value)}
                     />
-                    {codeError && <p className="text-red-500 text-sm mt-1">{codeError}</p>}
-                    <Input
-                      className="bg-white rounded-xl mb-5"
-                      fullWidth
-                      isRequired
-                      id="name"
-                      label="Nombre Materia"
-                      type="text"
-                      variant="filled"
-                      margin="normal"
-                      value={name}
-                      onChange={handleNameChange}
-                      helperText={nameError}
-                      status={nameError ? "error" : "default"}
-                    />
-                    {nameError && <p className="text-red-500 text-sm mt-1">{nameError}</p>}
                     <Input
                       className="bg-white rounded-xl"
                       fullWidth
@@ -146,6 +122,27 @@ function ModalEditSubject({ isOpen, onOpenChange, session, subject }) {
                       value={description}
                       onChange={(event) => setDescription(event.target.value)}
                     />
+                    <Dropdown className="w-full">
+                      <DropdownTrigger>
+                        <Button
+                          variant="bordered"
+                          className="w-full capitalize mt-5"
+                        >
+                          {status !== null ? statusForum[status.toString()] : "Selecciona el estado"}
+                        </Button>
+                      </DropdownTrigger>
+                      <DropdownMenu
+                        aria-label="Single selection example"
+                        variant="flat"
+                        disallowEmptySelection
+                        selectionMode="single"
+                        selectedKeys={status !== null ? [status.toString()] : []}
+                        onSelectionChange={(keys) => handleSelectionChange(Array.from(keys)[0])}
+                      >
+                        <DropdownItem key="true">ACTIVO</DropdownItem>
+                        <DropdownItem key="false">INACTIVO</DropdownItem>
+                      </DropdownMenu>
+                    </Dropdown>
                     <div className="flex justify-end pt-5">
                       <Button
                         className="w-28"
@@ -169,4 +166,4 @@ function ModalEditSubject({ isOpen, onOpenChange, session, subject }) {
   );
 }
 
-export default ModalEditSubject;
+export default ModalEditForum;

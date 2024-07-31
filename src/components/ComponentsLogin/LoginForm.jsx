@@ -11,6 +11,7 @@ function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [emailError, setEmailError] = useState("");
   const router = useRouter();
   const { data: session, status } = useSession();
 
@@ -26,6 +27,9 @@ function LoginForm() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (emailError) {
+      return;
+    }
     setIsLoading(true);
     const responseNextAuth = await signIn("credentials", {
       email,
@@ -34,8 +38,8 @@ function LoginForm() {
     });
 
     if (responseNextAuth?.error) {
-      console.error(responseNextAuth.error);
-      toast.error(responseNextAuth.error, {
+      //console.error(responseNextAuth.error);
+      toast.error("Credenciales no validas", {
         position: "top-right",
         autoClose: 2000,
       });
@@ -44,7 +48,17 @@ function LoginForm() {
       return;
     }
     setIsLoading(false);
-    //router.push("/managementSubjects");
+  };
+
+  const handleEmailChange = (event) => {
+    const value = event.target.value;
+    setEmail(value);
+    const emailRegex = /^[A-Za-z0-9._%+-]+@uptc\.edu\.co$/;
+    if (!emailRegex.test(value)) {
+      setEmailError("Correo institucional debe ser @uptc.edu.co");
+    } else {
+      setEmailError("");
+    }
   };
 
   if (status === "loading") {
@@ -73,7 +87,9 @@ function LoginForm() {
               variant="filled"
               margin="normal"
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={handleEmailChange}
+              error={!!emailError}
+              helperText={emailError}
             />
             <TextField
               className="bg-white rounded-xl"
