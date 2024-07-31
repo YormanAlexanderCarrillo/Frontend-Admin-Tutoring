@@ -1,8 +1,11 @@
+import TableTutorings from '@/components/ComponentsManagementTutoring/TableTutorings'
 import React from 'react'
 
 function ManagementTutorings() {
   return (
-    <div className='flex items-center justify-center h-screen'>ManagementTutorings</div>
+    <div className='flex justify-center min-h-screen pt-28'>
+      <TableTutorings/>
+    </div>
   )
 }
 
