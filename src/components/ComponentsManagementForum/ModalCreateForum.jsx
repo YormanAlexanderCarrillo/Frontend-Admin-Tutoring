@@ -1,5 +1,6 @@
 import {
   Button,
+  CircularProgress,
   Input,
   Modal,
   ModalBody,
@@ -7,9 +8,10 @@ import {
   ModalHeader,
 } from "@nextui-org/react";
 import axios from "axios";
+import { useSession } from "next-auth/react";
 import React, { useState } from "react";
 
-export default function ModalCreateForum({ isOpen, onOpenChange, session }) {
+export default function ModalCreateForum({ isOpen, onOpenChange,session }) {
   const URLAPI = process.env.NEXT_PUBLIC_BACKEND_URL;
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -23,13 +25,13 @@ export default function ModalCreateForum({ isOpen, onOpenChange, session }) {
     };
     setIsLoading(true)
     await axios
-      .post(`${URLAPI}/forum/create-forum`, forum, {
+      .post(`${URLAPI}/forum/create-forum/${session.user.userData._id}`, forum, {
         headers: {
           Authorization: `Bearer ${session.user.token}`,
         },
       })
       .then((response) => {
-        console.log(response);
+        //console.log(response);
         onOpenChange(false);
         setTitle("");
         setDescription("");
@@ -39,6 +41,7 @@ export default function ModalCreateForum({ isOpen, onOpenChange, session }) {
         console.log(error);
         setIsLoading(false)
       });
+      setIsLoading(false)
   };
 
   return (

@@ -45,7 +45,7 @@ function ModalEditForum({ isOpen, onOpenChange, session, forum }) {
     const forumUpdate = {
       title: title,
       description: description,
-      status: status,
+      state: status,
     };
     console.log(forumUpdate);
     await axios
@@ -55,7 +55,7 @@ function ModalEditForum({ isOpen, onOpenChange, session, forum }) {
         },
       })
       .then((response) => {
-        console.log(response.data);
+        //console.log(response.data);
         onOpenChange(false);
         setTitle("");
         setDescription("");
