@@ -14,7 +14,6 @@ import {
 import { CiEdit } from "react-icons/ci";
 import { MdDeleteOutline } from "react-icons/md";
 import { CiCirclePlus } from "react-icons/ci";
-import { IoDocumentAttachOutline } from "react-icons/io5";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import ModalCreateForum from "./ModalCreateForum";
@@ -23,6 +22,7 @@ import ModalEditForum from "./ModalEditForum";
 const columns = [
   { name: "Titulo", uid: "title" },
   { name: "Descripción", uid: "description" },
+  { name: "Estado", uid: "state" },
   { name: "Acciones", uid: "actions" },
 ];
 
@@ -36,13 +36,14 @@ export default function TableForum() {
 
   useEffect(() => {
     if (status === "authenticated") {
+      //console.log(session.user.userData._id);
       getForums();
     }
   }, [status, isCreateOpen, isEditOpen]);
 
   const getForums = async () => {
     axios
-      .get(`${URLAPI}/forum/get-forums`, {
+      .get(`${URLAPI}/forum/get-forums/${session.user.userData._id}`, {
         headers: {
           Authorization: `Bearer ${session.user.token}`,
         },
@@ -84,10 +85,17 @@ export default function TableForum() {
   const renderCell = useCallback((forum, columnKey) => {
     const cellValue = forum[columnKey];
     switch (columnKey) {
-      case "name":
+      case "title":
+      case "description":
         return (
           <div>
             <p>{cellValue}</p>
+          </div>
+        );
+      case "state":
+        return (
+          <div>
+            <p>{cellValue ? "Activo" : "Inactivo"}</p>
           </div>
         );
       case "actions":
@@ -115,6 +123,7 @@ export default function TableForum() {
         return cellValue;
     }
   }, []);
+  
 
   if (status === "loading") {
     return (
